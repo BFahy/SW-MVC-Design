@@ -1,0 +1,45 @@
+﻿@model Sams_Warehouse.Models.User
+@{
+    ViewData["Title"] = "Login";
+   string message = ViewBag.ErrorMessage;
+}
+
+
+
+<h1>Create an Account</h1>
+@{
+    if(!String.IsNullOrEmpty(message))
+    {
+        <h2 class="text-danger">@message</h2>
+    }
+}
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Register" name="Register">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Username" class="control-label">Display Name</label>
+                <input asp-for="Username" minlength="1" maxlength="20" required class="form-control" />
+                <span asp-validation-for="Username" class="text-danger"></span>
+            </div>
+             <div class="form-group">
+                <label asp-for="Email" class="control-label">Email</label>
+                <input asp-for="Email" minlength="4" maxlength="30" required class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Password" class="control-label">Password</label>
+                <input asp-for="Password" required type="password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-success" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<script type="text/javascript">
+    
+</script>

@@ -1,0 +1,40 @@
+﻿@model IEnumerable<Sams_Warehouse.Models.ShoppingItem>
+<style>
+.table td {
+    border-top: none;
+}
+</style>
+<table class="table" style="border-bottom: solid 0.5px black">
+    <thead>
+        <tr>
+            <th style="text-align: center; color: white; font-weight: 700; border-left: solid 1px black; border-top:solid 1px black; border-bottom:solid 1px black">
+                Item Name
+            </th>
+            <th style="color: white; font-weight: 700; border-top:solid 1px black; border-bottom:solid 1px black">
+                Unit
+            </th>
+            <th style="color: white; font-weight: 700; border-right: solid 1px black; border-top:solid 1px black; border-bottom:solid 1px black">
+                Unit Price
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td style="display: none; visibility: hidden">
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td style="text-align: center; border-left: solid 0.5px black">
+                    @Html.DisplayFor(modelItem => item.ItemName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Unit)
+                </td>
+                <td style="border-right: solid 0.5px black">
+                    $@Html.DisplayFor(modelItem => item.UnitPrice)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

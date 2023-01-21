@@ -1,0 +1,58 @@
+﻿@model Sams_Warehouse.Models.User
+@using Microsoft.AspNetCore.Http;
+   
+@{
+   ViewData["Title"] = "Update Display Name";
+   string message = ViewBag.ErrorMessage;
+   string userId = Context.Session.GetString("Id");
+}
+
+<h2 style="display: flex; justify-content: center;">Update Display Name</h2>
+</br>
+@{
+    if(!String.IsNullOrEmpty(message))
+    {
+        <h2 class="text-danger">@message</h2>
+    }
+}
+
+
+<div class="row">
+    <div class="col-md-4">
+            <div class="form-group">
+                <label class="control-label">New Display Name</label>
+                <input class="form-control" id="newUsername" />
+            </div>
+            <div class="form-group">  
+                <input type="submit" value="Update" class="btn btn-success" id="updateUsername" />
+            </div>
+    </div>
+</div>
+
+<script>
+    /**
+     * Function call to controller to update a logged in users username.
+     */
+     async function UpdateUsername(){      
+         
+         let newUsername = document.getElementById("newUsername").value;
+         let result = await fetch('/Users/UpdateName?userId=' + @userId , {
+                method: 'PUT',
+                headers: {
+                    'content-type':'application/json'
+                },
+                body: JSON.stringify(newUsername)
+            })
+
+         if (result.ok){ 
+                 window.location.href = "/Shopping/Index";   
+         }
+     }
+
+     document.getElementById("updateUsername").addEventListener("click", UpdateUsername);
+
+</script>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

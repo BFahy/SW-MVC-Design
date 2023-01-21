@@ -1,0 +1,69 @@
+﻿@model IEnumerable<ShoppingItemView>
+@{
+    decimal sum = 0;
+    var dateCreated = ViewBag.DateCreated;
+}
+
+
+@if (Model.Count() == 0)
+{
+        <br/>
+    <p style="text-align: center; color: white">Press 'New List' to create a grocery list</p>
+    <p style="text-align: center; color: white">Press 'Add Items' to begin adding to a created grocery list</p>
+    <br/>
+}
+else
+{
+                    <div class="row m-2 border">            
+            <div class="col border-right d-flex align-items-center" style="font-weight: 700; padding: 5px 0 5px 0; display: flex; justify-content: center; font-size: 18px; background-color: rgba(184, 205, 248, 0.5)">Item Name</div>
+            <div class="col border-right d-flex align-items-center" style="font-weight: 700; padding: 5px 0 5px 0; display: flex; justify-content: center; font-size: 18px; background-color: rgba(184, 205, 248, 0.5)">Single Unit Weight</div>
+            <div class="col border-right d-flex align-items-center" style="font-weight: 700; padding: 5px 0 5px 0; display: flex; justify-content: center; font-size: 18px; background-color: rgba(184, 205, 248, 0.5)">Single Unit Price ($)</div>
+            <div class="col border-right d-flex align-items-center" style="font-weight: 700; padding: 5px 0 5px 0; display: flex; justify-content: center; font-size: 18px; background-color: rgba(184, 205, 248, 0.5)">Quantity</div>
+            <div class="col-1 d-flex justify-content-center align-items-center" style="font-weight: 700; padding: 5px 0 5px 0; display: flex; justify-content: center; font-size: 18px; background-color: rgba(184, 205, 248, 0.5)">Delete</div>
+        </div>
+    @foreach (var shoppingitem in Model)
+    {
+        sum += @shoppingitem.UnitPrice * @shoppingitem.Quantity; 
+
+  
+
+
+        <div class="row m-2 border" style="background-color: #B8CDF8">
+            <input type="hidden" value=@shoppingitem.Id />            
+            <div class="col border-right d-flex align-items-center" style="padding: 5px 0 5px 0; display: flex; justify-content: center;">@shoppingitem.ItemName</div>
+            <div class="col border-right d-flex align-items-center" style="padding: 5px 0 5px 0; display: flex; justify-content: center;">@shoppingitem.Unit</div>
+            <div class="col border-right d-flex align-items-center" style="padding: 5px 0 5px 0; display: flex; justify-content: center;">$@shoppingitem.UnitPrice.ToString("0.00")</div>
+            <div class="col border-right d-flex align-items-center" style="padding: 5px 0 5px 0; display: flex; justify-content: center;">x @shoppingitem.Quantity</div>
+            <div class="col-1 d-flex justify-content-center align-items-center">
+                <button class="my-1 btn btn-outline-primary" onclick="RemoveItemFromList(this)" style="padding: 0px !important;
+    width: 30px;
+    height: 30px;
+    background-size: inherit;
+">                
+                <img src="../Images/delete.svg" style="width: 35px; height: auto;"/>
+                </button>
+            </div>
+        </div>       
+    
+    }
+
+    <div class="row m-2 border">
+        <div class="col border-right d-flex align-items-center" style="font-weight: 700; padding: 5px 0 5px 0; display: flex; justify-content: center; font-size: 18px; background-color: rgba(184, 205, 248, 0.5)">
+            Date Created 
+        </div>
+        <div class="col border-right d-flex align-items-center" style="font-weight: 700; padding: 5px 0 5px 0; display: flex; justify-content: center; font-size: 18px; background-color: rgba(184, 205, 248, 0.5)">
+            @dateCreated
+        </div>
+    </div>
+    <div class="row m-2 border">
+        <div class="col border-right d-flex align-items-center" style="font-weight: 700; padding: 5px 0 5px 0; display: flex; justify-content: center; font-size: 18px; background-color: rgba(184, 205, 248, 0.5)">
+            Total 
+        </div>
+        <div class="col border-right d-flex align-items-center" style="font-weight: 700; padding: 5px 0 5px 0; display: flex; justify-content: center; font-size: 18px; background-color: rgba(184, 205, 248, 0.5)">
+            $@sum.ToString("0.00")
+        </div>
+    </div>
+
+
+}
+

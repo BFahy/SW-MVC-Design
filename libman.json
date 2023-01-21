@@ -1,0 +1,14 @@
+{
+  "version": "1.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "toastify-js@1.12.0",
+      "destination": "wwwroot/lib/toastify-js/",
+      "files": [
+        "toastify.min.css",
+        "toastify.min.js"
+      ]
+    }
+  ]
+}

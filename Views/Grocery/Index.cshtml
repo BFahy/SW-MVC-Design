@@ -1,0 +1,323 @@
+﻿@using Microsoft.AspNetCore.Http;
+@{
+    string userId = Context.Session.GetString("Id");    
+}
+
+<h2 style="display: flex; justify-content: center;">Grocery lists</h2>
+</br>
+<div class="row m-3 rounded shadow border border-dark" style="padding: 10px 10px 10px 10px; background-color: #145C9E;">
+    <div class="col-sm-2 d-flex justify-content-center align-items-center my-1">
+        <input type="button" class="btn btn-info text-light" value="New List" onclick="ShowAddListModal()"/>
+    </div>
+    <div class="col-sm-8 my-1" id="GroceryListDDLContainer">
+        <select class="w-100 h-100" disabled="disabled">
+            <option>Please Wait....</option>
+        </select>
+    </div>
+    <div class="col-sm-2 d-flex justify-content-center align-items-center my-1">
+        <input type="button" class="btn btn-info text-light" onclick="ShowEditListModal()" value="Add Items"/>
+    </div>
+</div>
+
+<div class="row m-3 border border-dark rounded shadow" id="GroceryListTable" style="display:none; background-color: #0B4F6C">
+</div>
+
+<div class="modal fade" id="AddListModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background-color: #145C9E;">
+            <div class="modal-header" style="border: none !important;">
+                <h5 class="modal-title" id="ModalHeader" style="color:white;">Add New Grocery List</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-content"  style="padding: 10px 10px 10px 10px; background-color: #B8CDF8;">
+                <div class="row d-flex justify-content-center">
+                    <form id="addListForm">
+                        <input type="text" name="listName" placeholder="Name"/> 
+                        <span role="status" aria-hidden="true" style="display:none" id="btnSpinner">
+                         <div class="la-ball-fall la-sm" >
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                        </div>
+                        </span>    
+                        <input type="submit" value="Create" id="btnCreateModal"/>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="EditListModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="background-color: #145C9E;">
+            <div class="modal-header" style="border: none !important;">
+                <h5 class="modal-title" id="ModalHeader" style="color: white;">Edit Grocery List</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-content" style="background-color: #0B4F6C;" >
+                <div class="row d-flex justify-content-center">
+                    <div class="col-12">
+                        <div class="row d-flex justify-content-center mx-2 mt-2 p-1" >
+                            <div class="col-9">
+                                <input type="text" id="searchText" placeholder="Search" style="width: 100%;"/>
+                            </div>
+
+                        </div>
+
+                        <div class="row" >
+                            <div class="col-12" id="unAddedItems">
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="SpinnerModal" tabindex="-1" role="dialog" data-backdrop="false" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered justify-content-center">
+<div class="la-ball-fall la-3x">
+    <div></div>
+    <div></div>
+    <div></div>
+</div>
+     </div>
+</div>
+
+@section Scripts {
+    <script>
+     
+    /**
+     * Onload -> Update dropdown list to users lists.
+     */
+    window.onload = async function () {
+        UpdateDDL();
+    }
+ 
+    /**
+     * Updating dropdown list to provide options related to specific user ID.
+     */
+    async function UpdateDDL(){
+        var result = await fetch("/Grocery/GroceryListDDLPartial?userid=" + @userId );
+        var html = await result.text();
+        document.getElementById("GroceryListDDLContainer").innerHTML = html;
+
+        var ddl = document.getElementById("groceryDDL");
+        ddl.addEventListener("change", HandleDDLChange);
+    }
+    /**
+     * Handling the dropdown list changing selection.
+     */
+    async function HandleDDLChange(e) {
+         var option = e.target.selectedOptions[0];
+
+         FetchAndUpdateGroceryDisplay(option.value)
+     }
+     
+     /**
+      * Updates grocery list items display.
+      */
+     async function FetchAndUpdateGroceryDisplay(listId){
+
+         //$('#SpinnerModal').modal('show');
+
+
+         var result = await fetch("/Grocery/GroceryListTablePartial?groceryListId=" + listId);
+         var html = await result.text();
+
+         //$('#SpinnerModal').modal('hide');
+
+         var tableRow = document.getElementById("GroceryListTable");
+         
+
+         tableRow.innerHTML = html;
+         tableRow.style.display = "block";
+     }
+
+     /**
+      * Used to display 'Add' modal for creating new list.
+      */
+     async function ShowAddListModal(){
+         $('#AddListModal').modal('show');
+
+         let addListForm = document.getElementById('addListForm');
+         addListForm.addEventListener('submit', HandleAddListFormSubmit);
+     }
+
+     /**
+      * Used to display 'Edit' modal for adding items.
+      */
+     async function ShowEditListModal(){
+
+         let ddlValue = document.getElementById('groceryDDL').selectedOptions[0].value
+
+         if (ddlValue == 0){
+             return;
+         }
+
+         await FetchDisplayFilteredItems();
+
+         $('#EditListModal').modal('show');
+                  
+         let searchInput = document.getElementById('searchText');
+         searchText.addEventListener('input', HandleSearchInput);
+
+     }
+
+     /**
+      * Used to display searched items within modal or display all items if it is empty.
+      */
+     async function FetchDisplayFilteredItems(searchCriteria){
+         if (searchCriteria == undefined) {
+             searchCriteria = '';
+         }
+
+         let listId = document.getElementById('groceryDDL').selectedOptions[0].value
+
+         let result = await fetch('/Grocery/GetUnaddedGroceryList?listId='+ listId + '&searchCriteria=' + searchCriteria)
+
+         let html = await result.text();
+
+         document.getElementById("unAddedItems").innerHTML = html;
+     }
+
+     /**
+      * For handling search input text.
+      */
+     async function HandleSearchInput(e){
+         let text = e.target.value;
+
+         await FetchDisplayFilteredItems(text);
+         
+     }
+
+     /**
+      * For submitting newly created grocery list.
+      * Displays spinner on press of add button.
+      */
+     async function HandleAddListFormSubmit(e){
+
+         var btnSpin = document.getElementById("btnSpinner");       
+         var btnCreate = document.getElementById("btnCreateModal");
+         btnSpin.style.display = "inline-block";
+         btnCreateModal.style.display = "none";
+
+
+         e.preventDefault();
+
+         let listName = e.target['listName'].value
+
+            //let result = await fetch('/Grocery/AddNewGroceryList?userid=1', {
+            let result = await fetch('/Grocery/AddNewGroceryList?userid=' + @userId , {
+                method: 'POST',
+                headers: {
+                    'content-type':'application/json'
+                },
+                body: JSON.stringify(listName)
+            })
+
+            console.log(result.status);
+
+            if (result.ok){
+                
+                await UpdateDDL();
+
+                btnSpin.style.display = "none";
+                btnCreateModal.style.display = "inline-block";
+
+                $('#AddListModal').modal('hide');
+
+            } else {
+
+                btnSpin.style.display = "none";
+                btnCreateModal.style.display = "inline-block";
+
+                let message = await result.text();
+                ShowToast(message, 3000);
+            }
+
+     }
+
+     /**
+      * Function for adding an item to list.
+      * Will be called by button next to each item within modal.
+      */
+     async function AddItemToList(button){
+
+         let itemId = button.id.split('-')[1]
+
+         let itemQuantity = document.getElementById('num-' + itemId).value
+         
+         if (itemQuantity <= 0 || itemQuantity > 10){
+             ShowToast("Enter an amount between 1 and 10", 2000)
+             return;
+         }
+         if (itemQuantity % 1 != 0){
+             ShowToast("Quantity must be a whole number", 2000)
+             return;
+         }
+
+         button.setAttribute('disabled', 'disabled')
+
+         
+
+         let listId = document.getElementById('groceryDDL').selectedOptions[0].value
+
+
+
+         let groceryList = {
+             GroceryListId: listId,
+             ShoppingItemId: itemId,
+             Quantity: itemQuantity
+         }
+
+         console.log("groceryList JSON format",JSON.stringify(groceryList))
+
+         let result = await fetch('/Grocery/AddItemToGroceryList', {
+             method: 'POST',
+             headers:{
+                 'content-type': 'application/json'
+             },
+             body: JSON.stringify(groceryList)
+         })
+
+          let searchInput = document.getElementById('searchText');
+
+          if(searchInput.value == undefined){
+              searchInput.value = ''
+          }
+
+         await FetchDisplayFilteredItems(searchInput.value)
+
+
+         await FetchAndUpdateGroceryDisplay(listId)
+     }
+
+     /**
+      * Displayed as trash can next to each item after being added to grocery list.
+      * For removing an item from specific grocery list.
+      */
+     async function RemoveItemFromList(button){
+            let row = button.parentNode.parentNode
+            let idInputField = row.children[0]
+            let itemId = idInputField.value
+
+            let listId = document.getElementById('groceryDDL').selectedOptions[0].value
+
+            await fetch('/Grocery/RemoveItemFromList?itemId=' + itemId + '&groceryListId=' + listId, {
+                method: 'DELETE'
+            });
+
+            await FetchAndUpdateGroceryDisplay(listId)
+     }
+
+    </script>
+}

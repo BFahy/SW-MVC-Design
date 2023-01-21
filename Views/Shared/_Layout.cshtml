@@ -1,0 +1,147 @@
+﻿@using Microsoft.AspNetCore.Http;
+@{
+    bool isAuthenticated = Context.User != null && Context.User.Identity.IsAuthenticated;
+
+    string authStatus = Context.Session.GetString("Authenticated");
+    string user = Context.Session.GetString("User");
+    bool loggedIn = !String.IsNullOrEmpty(authStatus) && authStatus.Equals("True");
+
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Sams Warehouse</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/toastify-js/toastify.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <style>
+    body {
+    transition: .2s;
+}
+    body.dark {
+        background-color: #494949; /* When dark mode is on, set background color to black */
+    }
+    </style>
+</head>
+
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3" 
+        style="background-color: #BBCFFB;">
+            <div class="container">
+                <a class="navbar-brand" asp-area="" asp-controller="Shopping" asp-action="Index" style="margin-right: 2em;">
+                    <img id="swLogo" src="~/images/Sams Warehouse Shopping Cart.svg" />
+                </a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Shopping" asp-action="Index">Catalogue</a>
+                        </li>  
+                        @if (loggedIn)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Grocery" asp-action="Index">Grocery lists</a>
+                        </li> }
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="AboutUs">About us</a>
+                        </li>
+
+                    </ul>
+                </div>
+                @if (loggedIn)
+                {
+                 <label style="padding-right: 10px;">Logged in as <a href="/Users/UpdateName">@user</a></label>
+                 <div>  
+                     <a class="btn btn-danger" asp-area="" asp-controller="Users" asp-action="Logout">Logout</a>                        
+                 </div> 
+                } else
+                {
+                 <div>  
+                     <a class="btn btn-success" asp-area="" asp-controller="Users" asp-action="Login">Login</a>                        
+                 </div>  
+                }
+                
+                 <div style="display: block; padding-left: 40px" id="btnLightMode">
+                     <input type="image" src="~/images/LightMode.png" onclick="enableLightMode()" width="45px"/>
+                 </div>
+                 <div style="display: block; padding-left: 40px" id="btnDarkMode">                     
+                     <input type="image" src="~/images/DarkMode.png" onclick="enableDarkMode()" width="45px"/>
+                 </div>
+            </div>
+        </nav>
+    </header>
+
+
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container" style="color: black">
+            &copy; 2022 - Sams Warehouse - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/toastify-js/toastify.min.js"></script>
+
+    <script>
+        checkDarkMode();
+
+  function enableLightMode(){
+
+
+    document.body.classList.remove("dark");
+
+    window.localStorage.setItem('darkMode', 'false');
+
+    var buttonLight = document.getElementById("btnLightMode");
+    buttonLight.style.display = "none";
+    var buttonDark = document.getElementById("btnDarkMode");
+    buttonDark.style.display = "block";
+    
+
+
+  }
+
+  function enableDarkMode(){
+
+    document.body.classList.add("dark");
+
+    var buttonLight = document.getElementById("btnLightMode");
+    buttonLight.style.display = "block";
+    var buttonDark = document.getElementById("btnDarkMode");
+    buttonDark.style.display = "none";
+
+    window.localStorage.setItem('darkMode', 'true');
+
+
+  }
+
+  function checkDarkMode(){
+    if(localStorage.getItem('darkMode') === 'true'){
+      enableDarkMode()
+    }
+    else{
+      enableLightMode()
+    }
+  }
+    </script>
+
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
