@@ -9,5 +9,5 @@ Design ASP.NET assessment following a set colour scheme and design requirements,
 - Spinners
 
 ### Example grocery list entry
-<img src="https://user-images.githubusercontent.com/40779493/221325627-2cb422de-0bd1-4d61-9bf7-5792ab04e449.png" width=900 height=492>
+<img src="https://user-images.githubusercontent.com/40779493/221325627-2cb422de-0bd1-4d61-9bf7-5792ab04e449.png" width="600px" >
 
